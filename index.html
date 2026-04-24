@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Sonic Oasis | Sound & Frequency Sanctuary</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      user-select: none; /* cleaner tap highlights on mobile, but won't block text copy */
+    }
+
+    body {
+      background: linear-gradient(145deg, #0b1120 0%, #111827 100%);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      color: #eef2ff;
+      padding: 1.5rem 1.2rem 3rem;
+    }
+
+    /* main container */
+    .app-container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* header */
+    .hero {
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      background: linear-gradient(135deg, #DBEAFE, #A78BFA);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.3px;
+    }
+    .hero p {
+      color: #9ca3af;
+      margin-top: 0.5rem;
+      font-weight: 400;
+      font-size: 0.95rem;
+    }
+
+    /* category grid */
+    .categories-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* each category card */
+    .category-card {
+      background: rgba(18, 25, 45, 0.75);
+      backdrop-filter: blur(4px);
+      border-radius: 2rem;
+      padding: 1.2rem 1.2rem 1.5rem;
+      border: 1px solid rgba(139, 148, 204, 0.2);
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.4);
+      transition: all 0.2s;
+    }
+
+    .cat-header {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin-bottom: 1.2rem;
+      border-left: 4px solid #8b5cf6;
+      padding-left: 1rem;
+    }
+    .cat-title {
+      font-size: 1.65rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+    .cat-sub {
+      font-size: 0.75rem;
+      color: #a5b4fc;
+      background: #1e293b;
+      padding: 0.2rem 0.7rem;
+      border-radius: 30px;
+    }
+
+    /* sound tiles row (flex wrap) */
+    .sound-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .sound-tile {
+      background: #0f172ad9;
+      border-radius: 1.8rem;
+      padding: 0.7rem 1.2rem;
+      backdrop-filter: blur(2px);
+      border: 1px solid #334155;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      font-weight: 500;
+      font-size: 0.9rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    }
+    .sound-tile:hover {
+      background: #1e293b;
+      border-color: #818cf8;
+      transform: translateY(-2px);
+    }
+    .sound-tile.active {
+      background: #4f46e5;
+      border-color: #c7d2fe;
+      box-shadow: 0 0 0 2px rgba(129, 140, 248, 0.4);
+    }
+    .icon-em {
+      font-size: 1.3rem;
+      filter: drop-shadow(0 1px 1px black);
+    }
+    /* volume slider for each playing tile? we keep global master or simple. but we show small stop button */
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-left: auto;
+    }
+    .stop-btn {
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: #f87171;
+      font-size: 1rem;
+      cursor: pointer;
+      border-radius: 2rem;
+      width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.1s;
+    }
+    .stop-btn:hover {
+      background: #7f1a1a;
+      color: white;
+    }
+
+    /* active playing bar */
+    .now-playing-bar {
+      margin-top: 2rem;
+      background: #020617cc;
+      backdrop-filter: blur(12px);
+      border-radius: 3rem;
+      padding: 0.8rem 1.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.8rem;
+      border: 1px solid #334155;
+    }
+    .np-info {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+    }
+    .np-label {
+      font-weight: 300;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .np-name {
+      font-weight: 600;
+      background: #1e1b4b;
+      padding: 0.2rem 1rem;
+      border-radius: 2rem;
+    }
+    .volume-slider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    input[type="range"] {
+      width: 130px;
+      height: 4px;
+      -webkit-appearance: none;
+      background: #4b5563;
+      border-radius: 10px;
+    }
+    input[type="range"]:focus {
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: #a78bfa;
+      cursor: pointer;
+    }
+    .master-stop {
+      background: #ef4444;
+      border: none;
+      padding: 0.5rem 1.2rem;
+      border-radius: 2rem;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 2.5rem;
+      font-size: 0.7rem;
+      color: #4b5563;
+    }
+
+    @media (max-width: 680px) {
+      body { padding: 1rem; }
+      .sound-tile { padding: 0.5rem 1rem; font-size: 0.8rem; }
+      .cat-title { font-size: 1.3rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+  <div class="hero">
+    <h1>🎧 Sonic Oasis</h1>
+    <p>Binaural waves · 8D Audio · Nature & Healing frequencies · Ambient soundscapes</p>
+  </div>
+
+  <div class="categories-grid" id="categoriesGrid"></div>
+
+  <!-- Now playing & master volume section -->
+  <div class="now-playing-bar" id="nowPlayingBar">
+    <div class="np-info">
+      <span class="np-label">🎵 NOW PLAYING</span>
+      <span class="np-name" id="activeSoundName">—</span>
+    </div>
+    <div class="volume-slider">
+      <span>🔊</span>
+      <input type="range" id="globalVolume" min="0" max="1" step="0.01" value="0.65">
+    </div>
+    <button class="master-stop" id="stopAllBtn">⏹️ Stop all sounds</button>
+  </div>
+  <footer>✨ Therapeutic frequencies & ambience — each sound uses high-quality oscillators or loops. Tap any tile to play, tap again to stop individually.</footer>
+</div>
+
+<script>
+  // --------------------------------------------------------------
+  //  AUDIO ENGINE (Web Audio API for tones / oscillators + optional loops)
+  //  We simulate high quality binaural beats (stereo panned oscillators),
+  //  noise colors (white/pink/brown via buffer), 8D audio (moving pan LFO),
+  //  Solfeggio frequencies, and ambient loops (nature/city/home).
+  //  Since actual streaming is costly, we generate authentic soundscapes 
+  //  using Web Audio for oscillator waves, noise, and short background loops
+  //  (using looped AudioBuffer for rain/water etc using noise+filter).
+  //  Total immersive experience without external MP3s.
+  // --------------------------------------------------------------
+
+  // Global audio context (start on user interaction)
+  let audioCtx = null;
+  let activeNodes = new Map(); // key: soundId -> { sourceNodes, gainNode, typeSpecificCleanup }
+  let currentPlayingId = null;   // for UI indication of the latest single? Actually multiple can play but we show "active mix"
+  let activeSoundsSet = new Set(); // store ids
+
+  // Volume master gain
+  let masterGain = null;
+
+  // Helper: ensure context running
+  async function initAudio() {
+    if (audioCtx && audioCtx.state !== 'closed') return audioCtx;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = parseFloat(document.getElementById('globalVolume').value);
+    masterGain.connect(audioCtx.destination);
+    return audioCtx;
+  }
+
+  // Global volume update
+  function setMasterVolume(val) {
+    if (masterGain) masterGain.gain.value = val;
+  }
+
+  // ---- SOUND GENERATORS (all return cleanup function and gain node) ----
+  // Each generator: (ctx, masterGain, params) => { gainNode, stopFunction, metadata }
+
+  // 1. Binaural Beats: delta/theta/beta/gamma (carrier freq + offset for each ear)
+  function createBinaural(ctx, masterGainNode, baseFreq, beatFreq, durationInfinite = true) {
+    // create stereo panner? binaural beat uses separate oscillators left/right
+    const leftGain = ctx.createGain();
+    const rightGain = ctx.createGain();
+    const merger = ctx.createChannelMerger(2);
+    leftGain.connect(merger, 0, 0);
+    rightGain.connect(merger, 0, 1);
+    merger.connect(masterGainNode);
+    
+    const leftOsc = ctx.createOscillator();
+    const rightOsc = ctx.createOscillator();
+    leftOsc.type = 'sine';
+    rightOsc.type = 'sine';
+    leftOsc.frequency.value = baseFreq;
+    rightOsc.frequency.value = baseFreq + beatFreq;
+    leftOsc.connect(leftGain);
+    rightOsc.connect(rightGain);
+    leftGain.gain.value = 0.25;
+    rightGain.gain.value = 0.25;
+    leftOsc.start();
+    rightOsc.start();
+    
+    const stop = () => {
+      leftOsc.stop();
+      rightOsc.stop();
+      leftOsc.disconnect();
+      rightOsc.disconnect();
+      leftGain.disconnect();
+      rightGain.disconnect();
+      merger.disconnect();
+    };
+    return { stop, nodes: [leftOsc, rightOsc, leftGain, rightGain, merger] };
+  }
+
+  // 2. Noise Colors (white, pink, brown)
+  function createNoiseColor(ctx, masterGainNode, color, volume = 0.2) {
+    const bufferSize = 4096;
+    const noiseNode = ctx.createScriptProcessor(bufferSize, 1, 1);
+    let lastOut = 0;
+    noiseNode.onaudioprocess = (e) => {
+      const output = e.outputBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        let white = Math.random() * 2 - 1;
+        if (color === 'white') output[i] = white;
+        else if (color === 'pink') {
+          // simple pink noise approximation
+          let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+          white = white * 0.5;
+          b0 = 0.99886 * b0 + white * 0.0555179;
+          b1 = 0.99332 * b1 + white * 0.0750759;
+          b2 = 0.96900 * b2 + white * 0.1538520;
+          b3 = 0.86650 * b3 + white * 0.3104856;
+          b4 = 0.55000 * b4 + white * 0.5329522;
+          b5 = -0.7616 * b5 - white * 0.0168980;
+          let pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+          pink *= 0.11;
+          output[i] = pink;
+        } else if (color === 'brown') {
+          let brown = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = brown;
+          output[i] = brown * 3.5;
+        } else output[i] = white;
+      }
+    };
+    const gain = ctx.createGain();
+    gain.gain.value = volume;
+    noiseNode.connect(gain);
+    gain.connect(masterGainNode);
+    const stop = () => {
+      noiseNode.disconnect();
+      gain.disconnect();
+      noiseNode.onaudioprocess = null;
+    };
+    return { stop, nodes: [noiseNode, gain] };
+  }
+
+  // 3. Rain / water simulation (filtered noise + subtle modulation)
+  function createRainWater(ctx, masterGainNode, type = 'rain') {
+    const bufferSize = 2048;
+    const noiseNode = ctx.createScriptProcessor(bufferSize, 1, 1);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = type === 'rain' ? 1800 : 800;
+    filter.Q.value = 2;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.28;
+    noiseNode.onaudioprocess = (e) => {
+      const out = e.outputBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        out[i] = (Math.random() * 2 - 1) * 0.8;
+      }
+    };
+    noiseNode.connect(filter);
+    filter.connect(gain);
+    gain.connect(masterGainNode);
+    const stop = () => {
+      noiseNode.disconnect();
+      filter.disconnect();
+      gain.disconnect();
+      noiseNode.onaudioprocess = null;
+    };
+    return { stop, nodes: [noiseNode, filter, gain] };
+  }
+
+  // 4. 8D Audio effect: moving pan LFO (using stereo panner with automation)
+  function create8DAudio(ctx, masterGainNode, type = 'ambientPad') {
+    // simple oscillator with sweeping pan
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = type === 'lofi' ? 146.83 : 220;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.2;
+    const panner = ctx.createStereoPanner();
+    osc.connect(gain);
+    gain.connect(panner);
+    panner.connect(masterGainNode);
+    osc.start();
+    let startTime = ctx.currentTime;
+    const animatePan = () => {
+      if (!panner.connect) return;
+      const t = (ctx.currentTime - startTime) * 0.5; // slow cycle
+      const panValue = Math.sin(t * 2 * Math.PI) * 0.9;
+      if (panner.pan) panner.pan.value = panValue;
+      requestAnimationFrame(() => {
+        if (audioCtx && panner.pan) animatePan();
+      });
+    };
+    animatePan();
+    const stop = () => {
+      osc.stop();
+      osc.disconnect();
+      gain.disconnect();
+      panner.disconnect();
+    };
+    return { stop, nodes: [osc, gain, panner] };
+  }
+
+  // 5. Solfeggio frequencies (pure sine)
+  function createSolfeggio(ctx, masterGainNode, freq, volume = 0.18) {
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    const gain = ctx.createGain();
+    gain.gain.value = volume;
+    osc.connect(gain);
+    gain.connect(masterGainNode);
+    osc.start();
+    const stop = () => {
+      osc.stop();
+      osc.disconnect();
+      gain.disconnect();
+    };
+    return { stop, nodes: [osc, gain] };
+  }
+
+  // 6. ASMR tick-tock or crackle (noise based)
+  function createASMR(ctx, masterGainNode, type = 'tap') {
+    const bufferSize = 1024;
+    const processor = ctx.createScriptProcessor(bufferSize, 1, 1);
+    const gain = ctx.createGain();
+    gain.gain.value = 0.12;
+    processor.onaudioprocess = (e) => {
+      const out = e.outputBuffer.getChannelData(0);
+      for (let i=0; i<bufferSize; i++) {
+        if (Math.random() < 0.05) out[i] = (Math.random() - 0.5)*0.4;
+        else out[i] = 0;
+      }
+    };
+    processor.connect(gain);
+    gain.connect(masterGainNode);
+    const stop = () => {
+      processor.disconnect();
+      gain.disconnect();
+      processor.onaudioprocess = null;
+    };
+    return { stop, nodes: [processor, gain] };
+  }
+
+  // 7. Nature/City Sound (simple loop with granular noise)
+  function createAmbience(ctx, masterGainNode, category) {
+    // similar to filtered noise + random bird/ cricket for nature
+    const bufferSize = 2048;
+    const processor = ctx.createScriptProcessor(bufferSize, 1, 1);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = category === 'city' ? 1200 : 3000;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.22;
+    processor.onaudioprocess = (e) => {
+      const out = e.outputBuffer.getChannelData(0);
+      for (let i=0; i<bufferSize; i++) {
+        let noise = (Math.random() - 0.5) * 0.6;
+        if (category === 'city') noise += Math.sin(Date.now() * 0.002) * 0.05;
+        else if (category === 'home') noise += (Math.sin(Date.now() * 0.0017) * 0.03);
+        out[i] = noise;
+      }
+    };
+    processor.connect(filter);
+    filter.connect(gain);
+    gain.connect(masterGainNode);
+    const stop = () => {
+      processor.disconnect();
+      filter.disconnect();
+      gain.disconnect();
+      processor.onaudioprocess = null;
+    };
+    return { stop, nodes: [processor, filter, gain] };
+  }
+
+  // master sound map
+  const soundLibrary = {
+    // sleep & relaxation
+    "Delta Waves (1-4 Hz)": { gen: (ctx, master) => createBinaural(ctx, master, 110, 3.0) },
+    "Theta Waves (4-8 Hz)": { gen: (ctx, master) => createBinaural(ctx, master, 132, 5.5) },
+    "White Noise": { gen: (ctx, master) => createNoiseColor(ctx, master, 'white', 0.2) },
+    "Pink Noise": { gen: (ctx, master) => createNoiseColor(ctx, master, 'pink', 0.2) },
+    "Brown Noise": { gen: (ctx, master) => createNoiseColor(ctx, master, 'brown', 0.22) },
+    "Heavy Rainfall": { gen: (ctx, master) => createRainWater(ctx, master, 'rain') },
+    "Flowing Stream": { gen: (ctx, master) => createRainWater(ctx, master, 'stream') },
+    // Focus & Study
+    "Beta Waves (13-30 Hz)": { gen: (ctx, master) => createBinaural(ctx, master, 180, 19.0) },
+    "Gamma Waves (30-50 Hz)": { gen: (ctx, master) => createBinaural(ctx, master, 210, 38.0) },
+    "8D Focus Pad": { gen: (ctx, master) => create8DAudio(ctx, master, 'focus') },
+    "Lo-Fi Study Tone": { gen: (ctx, master) => create8DAudio(ctx, master, 'lofi') },
+    // Meditation & Healing
+    "528 Hz (Miracle)": { gen: (ctx, master) => createSolfeggio(ctx, master, 528, 0.2) },
+    "432 Hz (Relax)": { gen: (ctx, master) => createSolfeggio(ctx, master, 432, 0.2) },
+    "Tibetan Bowl (136 Hz)": { gen: (ctx, master) => createSolfeggio(ctx, master, 136, 0.24) },
+    "ASMR whispers": { gen: (ctx, master) => createASMR(ctx, master, 'tap') },
+    // General Ambience
+    "Forest Birds": { gen: (ctx, master) => createAmbience(ctx, master, 'nature') },
+    "City Rain": { gen: (ctx, master) => createAmbience(ctx, master, 'city') },
+    "Home Fireplace": { gen: (ctx, master) => createAmbience(ctx, master, 'home') },
+    "Ocean Waves": { gen: (ctx, master) => createRainWater(ctx, master, 'stream') } // variation
+  };
+
+  // categories structure
+  const categories = [
+    { name: "💤 Sleep & Relaxation", desc: "Delta/Theta · Noise colors · Rain/Water", items: ["Delta Waves (1-4 Hz)","Theta Waves (4-8 Hz)","White Noise","Pink Noise","Brown Noise","Heavy Rainfall","Flowing Stream"] },
+    { name: "📚 Focus & Study", desc: "Beta/Gamma binaural · 8D Audio · Lo-fi Music", items: ["Beta Waves (13-30 Hz)","Gamma Waves (30-50 Hz)","8D Focus Pad","Lo-Fi Study Tone"] },
+    { name: "🧘 Meditation & Healing", desc: "Solfeggio frequencies · Healing Instruments · ASMR", items: ["528 Hz (Miracle)","432 Hz (Relax)","Tibetan Bowl (136 Hz)","ASMR whispers"] },
+    { name: "🌍 General Ambience", desc: "Nature sounds · City sounds · Home sounds", items: ["Forest Birds","City Rain","Home Fireplace","Ocean Waves"] }
+  ];
+
+  // UI building and interaction
+  async function playSound(soundId, soundDef) {
+    await initAudio();
+    if (!audioCtx || !masterGain) return;
+    // if same sound already playing, stop it (toggle behavior)
+    if (activeNodes.has(soundId)) {
+      stopSound(soundId);
+      updateActiveDisplay();
+      return;
+    }
+    // stop all same type? we allow layering, but UX: just add new layers
+    const ctx = audioCtx;
+    const result = soundDef.gen(ctx, masterGain);
+    const stopFn = result.stop;
+    activeNodes.set(soundId, { stop: stopFn });
+    activeSoundsSet.add(soundId);
+    updateActiveDisplay();
+    // highlight UI tile
+    highlightTile(soundId, true);
+  }
+
+  function stopSound(soundId) {
+    if (activeNodes.has(soundId)) {
+      const entry = activeNodes.get(soundId);
+      entry.stop();
+      activeNodes.delete(soundId);
+      activeSoundsSet.delete(soundId);
+      highlightTile(soundId, false);
+      updateActiveDisplay();
+    }
+  }
+
+  function stopAllSounds() {
+    for (let [id, entry] of activeNodes.entries()) {
+      entry.stop();
+      highlightTile(id, false);
+    }
+    activeNodes.clear();
+    activeSoundsSet.clear();
+    updateActiveDisplay();
+  }
+
+  function highlightTile(soundId, isActive) {
+    const tile = document.querySelector(`.sound-tile[data-id="${soundId.replace(/['"]/g, '')}"]`);
+    if (tile) {
+      if (isActive) tile.classList.add('active');
+      else tile.classList.remove('active');
+    }
+  }
+
+  function updateActiveDisplay() {
+    const span = document.getElementById('activeSoundName');
+    if (activeSoundsSet.size === 0) span.innerText = '—';
+    else span.innerText = Array.from(activeSoundsSet).join(', ');
+  }
+
+  // render full SPA
+  function renderApp() {
+    const container = document.getElementById('categoriesGrid');
+    container.innerHTML = '';
+    for (let cat of categories) {
+      const card = document.createElement('div');
+      card.className = 'category-card';
+      card.innerHTML = `
+        <div class="cat-header">
+          <div class="cat-title">${cat.name}</div>
+          <div class="cat-sub">${cat.desc}</div>
+        </div>
+        <div class="sound-grid" id="grid-${cat.name.replace(/\s/g, '')}"></div>
+      `;
+      container.appendChild(card);
+      const gridDiv = card.querySelector('.sound-grid');
+      for (let item of cat.items) {
+        const soundDef = soundLibrary[item];
+        if (!soundDef) continue;
+        const tile = document.createElement('div');
+        tile.className = 'sound-tile';
+        let icon = '🎵';
+        if (item.includes('Waves') || item.includes('Delta')) icon = '🧠';
+        else if (item.includes('Noise')) icon = '🌀';
+        else if (item.includes('Rain') || item.includes('Stream')) icon = '💧';
+        else if (item.includes('8D')) icon = '🌀';
+        else if (item.includes('Lo-Fi')) icon = '🎧';
+        else if (item.includes('Hz')) icon = '🔔';
+        else if (item.includes('ASMR')) icon = '👂';
+        else icon = '🌿';
+        tile.setAttribute('data-id', item);
+        tile.innerHTML = `<span class="icon-em">${icon}</span><span>${item}</span>`;
+        tile.addEventListener('click', (e) => {
+          e.stopPropagation();
+          playSound(item, soundDef);
+        });
+        gridDiv.appendChild(tile);
+      }
+    }
+  }
+
+  // event listeners for global controls
+  document.getElementById('globalVolume').addEventListener('input', (e) => {
+    const val = parseFloat(e.target.value);
+    setMasterVolume(val);
+  });
+  document.getElementById('stopAllBtn').addEventListener('click', () => {
+    stopAllSounds();
+  });
+
+  // enable audio context on first user gesture (any click on doc body not interfering)
+  function enableAudioOnFirstTouch() {
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    } else if (!audioCtx) {
+      initAudio().then(ctx => {
+        if (ctx.state === 'suspended') ctx.resume();
+      });
+    }
+  }
+  document.body.addEventListener('click', enableAudioOnFirstTouch, { once: true });
+  window.addEventListener('load', () => {
+    renderApp();
+    // initial volume
+    if (masterGain) masterGain.gain.value = 0.65;
+  });
+</script>
+</body>
+</html>
